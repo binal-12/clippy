@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ClipboardItem from './ClipboardItem';
 import { ClipboardPaste } from 'lucide-react';
-
+import ClipImage from './clipboard.png'
 
 import { closestCorners, DndContext, KeyboardSensor, PointerSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
@@ -11,12 +11,14 @@ const App = () => {
   const [clips, setClips] = useState([]);
 
   useEffect(() => {
-    const savedClips = JSON.parse(localStorage.getItem('clippy-items')) || [];
-    setClips(savedClips);
+    console.log('App mounted');
+    const savedClips = window.localStorage.getItem('clippy-items');
+    if (savedClips !== null) setClips(JSON.parse(savedClips));
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('clippy-items', JSON.stringify(clips));
+    console.log('Clips updated');
+    window.localStorage.setItem('clippy-items', JSON.stringify(clips));
   }, [clips]);
 
   const handleAddClip = () => {
@@ -72,7 +74,9 @@ const App = () => {
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="max-w-xl mx-auto bg-white shadow-md rounded-2xl p-6 space-y-4">
-        <h1 className="text-2xl font-bold text-center">📋 Clippy</h1>
+        <img src={ClipImage} alt="clip" className="w-20 h-20 mx-auto" />
+        <h1 className="text-2xl font-bold text-center">Clipty</h1>
+        
         <div className="relative mb-2">
           <textarea
             className="w-full border p-3 rounded-xl resize-none pr-10"
