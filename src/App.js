@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import ClipboardItem from './ClipboardItem';
+import { ClipboardPaste } from 'lucide-react';
+
 
 import { closestCorners, DndContext, KeyboardSensor, PointerSensor, TouchSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy } from '@dnd-kit/sortable';
@@ -25,6 +27,7 @@ const App = () => {
 
   const handleCopy = (text) => {
     navigator.clipboard.writeText(text);
+    console.log('Copied to clipboard:', text);
   };
 
   const handleDelete = (id) => {
@@ -54,7 +57,11 @@ const App = () => {
   }
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5
+      }
+  }),
     useSensor(TouchSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter : sortableKeyboardCoordinates
@@ -66,20 +73,36 @@ const App = () => {
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="max-w-xl mx-auto bg-white shadow-md rounded-2xl p-6 space-y-4">
         <h1 className="text-2xl font-bold text-center">📋 Clippy</h1>
-        <textarea
-          className="w-full border p-3 rounded-xl resize-none"
-          rows={3}
-          placeholder="Type something to save..."
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyPress}
-        />
+        <div className="relative mb-2">
+          <textarea
+            className="w-full border p-3 rounded-xl resize-none pr-10"
+            rows={3}
+            placeholder="Type something to save..."
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyPress}
+          />
+          <button
+            onClick={async () => {
+              const text = await navigator.clipboard.readText();
+              setInput(text);
+            }}
+            className="absolute top-4 right-4 text-blue-500 hover:text-blue-700"
+            title="Paste from clipboard"
+          >
+            <ClipboardPaste size={20} />
+          </button>
+        </div>
+
+
+
         <button
           onClick={handleAddClip}
           className="w-full bg-blue-500 text-white py-2 rounded-xl hover:bg-blue-600 transition"
         >
           Save to Clipboard
         </button>
+
         <DndContext sensors={sensors} onDragEnd={handleDragEnd} collisionDetection={closestCorners}>
 
           <SortableContext items={clips} strategy={verticalListSortingStrategy}>
